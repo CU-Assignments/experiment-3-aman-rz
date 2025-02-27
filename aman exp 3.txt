@@ -1,0 +1,245 @@
+Easy Level
+Problem Statement: Write a Java program to calculate the square root of a number entered by the user. Use try-catch to handle invalid inputs (e.g., negative numbers or non-numeric values).
+Input Example:
+Enter a number: -16
+Output Example:
+Error: Cannot calculate the square root of a negative number.
+
+
+import java.util.Scanner;
+
+public class SquareRootCalculator {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.print("Enter a number: ");
+            double number = Double.parseDouble(scanner.nextLine());
+
+            if (number < 0) {
+                throw new IllegalArgumentException("Cannot calculate the square root of a negative number.");
+            }
+
+            double result = Math.sqrt(number);
+            System.out.println("The square root of " + number + " is: " + result);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Invalid input. Please enter a valid number.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            scanner.close();
+        }
+    }
+}
+
+
+Medium Level
+Problem Statement: Write a Java program to simulate an ATM withdrawal system. The program should:
+
+Ask the user to enter their PIN.
+Allow withdrawal if the PIN is correct and the balance is sufficient.
+Throw exceptions for invalid PIN or insufficient balance.
+Ensure the system always shows the remaining balance, even if an exception occurs.
+
+Input Example:
+Enter PIN: 1234
+Withdraw Amount: 5000
+Output Example:
+Error: Insufficient balance. Current Balance: 3000
+
+import java.util.Scanner;
+
+class InvalidPinException extends Exception {
+    public InvalidPinException(String message) {
+        super(message);
+    }
+}
+
+class InsufficientBalanceException extends Exception {
+    public InsufficientBalanceException(String message) {
+        super(message);
+    }
+}
+
+public class ATMWithdrawalSystem {
+    private static final String CORRECT_PIN = "1234";
+    private static double balance = 3000;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.print("Enter PIN: ");
+            String enteredPin = scanner.nextLine();
+
+            if (!enteredPin.equals(CORRECT_PIN)) {
+                throw new InvalidPinException("Error: Invalid PIN.");
+            }
+
+            System.out.print("Withdraw Amount: ");
+            double withdrawAmount = scanner.nextDouble();
+
+            if (withdrawAmount > balance) {
+                throw new InsufficientBalanceException("Error: Insufficient balance. Current Balance: " + balance);
+            }
+
+            balance -= withdrawAmount;
+            System.out.println("Withdrawal successful. Remaining Balance: " + balance);
+        } catch (InvalidPinException e) {
+            System.out.println(e.getMessage());
+        } catch (InsufficientBalanceException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: Invalid input.");
+        } finally {
+            System.out.println("Current Balance: " + balance);
+            scanner.close();
+        }
+    }
+}
+
+
+Hard Level
+Problem Statement: Create a Java program for a university enrollment system with exception handling. The program should:
+
+Allow students to enroll in courses.
+Throw a CourseFullException if the maximum enrollment limit is reached.
+Throw a PrerequisiteNotMetException if the student hasn’t completed prerequisite courses.
+
+Input Example:
+Enroll in Course: Advanced Java
+Prerequisite: Core Java
+Status: Prerequisite not completed
+Output Example:
+Error: PrerequisiteNotMetException - Complete Core Java before enrolling in Advanced Java.
+
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class CourseFullException extends Exception {
+    public CourseFullException(String message) {
+        super(message);
+    }
+}
+
+class PrerequisiteNotMetException extends Exception {
+    public PrerequisiteNotMetException(String message) {
+        super(message);
+    }
+}
+
+class Course {
+    private String name;
+    private int maxEnrollment;
+    private List<Student> enrolledStudents;
+    private String prerequisite;
+
+    public Course(String name, int maxEnrollment, String prerequisite) {
+        this.name = name;
+        this.maxEnrollment = maxEnrollment;
+        this.prerequisite = prerequisite;
+        this.enrolledStudents = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPrerequisite() {
+        return prerequisite;
+    }
+
+    public boolean isFull() {
+        return enrolledStudents.size() >= maxEnrollment;
+    }
+
+    public void enrollStudent(Student student) throws CourseFullException, PrerequisiteNotMetException {
+        if (isFull()) {
+            throw new CourseFullException("Course " + name + " is full. Enrollment limit reached.");
+        }
+        if (prerequisite != null && !student.hasCompletedCourse(prerequisite)) {
+            throw new PrerequisiteNotMetException("Complete " + prerequisite + " before enrolling in " + name + ".");
+        }
+        enrolledStudents.add(student);
+        student.addCourse(name);
+    }
+
+    public List<Student> getEnrolledStudents() {
+        return enrolledStudents;
+    }
+}
+
+class Student {
+    private String name;
+    private List<String> completedCourses;
+
+    public Student(String name) {
+        this.name = name;
+        this.completedCourses = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void completeCourse(String courseName) {
+        completedCourses.add(courseName);
+    }
+
+    public boolean hasCompletedCourse(String courseName) {
+        return completedCourses.contains(courseName);
+    }
+
+    public void addCourse(String courseName) {
+        System.out.println(name + " successfully enrolled in " + courseName + ".");
+    }
+}
+
+public class UniversityEnrollmentSystem {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        Course coreJava = new Course("Core Java", 3, null);
+        Course advancedJava = new Course("Advanced Java", 2, "Core Java");
+
+        Student student1 = new Student("John");
+        student1.completeCourse("Core Java");
+
+        Student student2 = new Student("Jane");
+
+        try {
+            System.out.print("Enter student name to enroll: ");
+            String studentName = scanner.nextLine();
+            System.out.print("Enter course to enroll in: ");
+            String courseName = scanner.nextLine();
+
+            Student student = null;
+            if (studentName.equals(student1.getName())) {
+                student = student1;
+            } else if (studentName.equals(student2.getName())) {
+                student = student2;
+            } else {
+                System.out.println("Student not found.");
+                return;
+            }
+
+            if (courseName.equals("Core Java")) {
+                coreJava.enrollStudent(student);
+            } else if (courseName.equals("Advanced Java")) {
+                advancedJava.enrollStudent(student);
+            } else {
+                System.out.println("Invalid course.");
+            }
+
+        } catch (CourseFullException | PrerequisiteNotMetException e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            System.out.println("Enrollment process completed.");
+        }
+        scanner.close();
+    }
+}
+```
